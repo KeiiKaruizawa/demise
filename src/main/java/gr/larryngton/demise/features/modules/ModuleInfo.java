@@ -1,0 +1,21 @@
+package gr.larryngton.demise.features.modules;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ModuleInfo {
+    String name();
+
+    String description() default "Empty description.";
+//    String description();
+
+    int key() default 0;
+
+    boolean legit = false;
+
+    boolean legit() default false;
+}

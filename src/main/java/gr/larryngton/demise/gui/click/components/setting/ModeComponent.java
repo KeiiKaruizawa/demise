@@ -1,0 +1,71 @@
+package gr.larryngton.demise.gui.click.components.setting;
+
+import gr.larryngton.demise.features.values.impl.ModeValue;
+import gr.larryngton.demise.gui.click.Component;
+import gr.larryngton.demise.gui.font.Fonts;
+import gr.larryngton.demise.utils.animations.Direction;
+import gr.larryngton.demise.utils.animations.impl.EaseOutSine;
+import gr.larryngton.demise.utils.render.ColorUtils;
+import gr.larryngton.demise.utils.render.MouseUtils;
+import gr.larryngton.demise.utils.sound.SoundUtil;
+
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ModeComponent extends Component {
+    private final ModeValue setting;
+    private final Map<String, EaseOutSine> select = new HashMap<>();
+
+    public ModeComponent(ModeValue setting) {
+        this.setting = setting;
+    }
+
+    @Override
+    public void drawScreen(int mouseX, int mouseY) {
+        setDescription(setting.getDescription());
+
+        float heightoff = 4;
+        float lineHeight = Fonts.interRegular.get(13).getHeight() + 2;
+
+        Fonts.interRegular.get(15).drawString(setting.getName(), getX() + 4, getY() + 2.5f, -1);
+
+        for (String text : setting.getModes()) {
+            select.putIfAbsent(text, new EaseOutSine(100, 1));
+            select.get(text).setDirection(text.equals(setting.get()) ? Direction.FORWARDS : Direction.BACKWARDS);
+
+            Fonts.interRegular.get(13).drawString(text, getX() + 8, getY() + Fonts.interRegular.get(15).getHeight() + 1 + heightoff, ColorUtils.interpolateColor2(new Color(128, 128, 128), Color.white, (float) select.get(text).getOutput()));
+
+            heightoff += lineHeight;
+        }
+
+        setHeight(Fonts.interRegular.get(15).getHeight() + heightoff);
+        super.drawScreen(mouseX, mouseY);
+    }
+
+    @Override
+    public void mouseClicked(int mouseX, int mouseY, int mouse) {
+        float heightoff = 4;
+        float lineHeight = Fonts.interRegular.get(13).getHeight() + 2;
+
+        for (String text : setting.getModes()) {
+            if (MouseUtils.isHovered(getX() + 8, getY() + Fonts.interRegular.get(15).getHeight() + 1 + heightoff, Fonts.interRegular.get(13).getStringWidth(text), Fonts.interRegular.get(13).getHeight(), mouseX, mouseY) && mouse == 0) {
+                setting.set(text);
+                SoundUtil.playSound("demise.tick");
+                break;
+            }
+            heightoff += lineHeight;
+        }
+        super.mouseClicked(mouseX, mouseY, mouse);
+    }
+
+    @Override
+    public boolean isVisible() {
+        return setting.canDisplay();
+    }
+
+    @Override
+    public boolean isChild() {
+        return this.setting.isChild();
+    }
+}

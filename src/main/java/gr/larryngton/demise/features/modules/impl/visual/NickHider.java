@@ -1,0 +1,77 @@
+package gr.larryngton.demise.features.modules.impl.visual;
+
+import gr.larryngton.demise.events.annotations.EventTarget;
+import gr.larryngton.demise.events.impl.misc.PrintChatMessageEvent;
+import gr.larryngton.demise.events.impl.misc.SendMessageEvent;
+import gr.larryngton.demise.features.modules.Module;
+import gr.larryngton.demise.features.modules.ModuleInfo;
+import gr.larryngton.demise.features.values.impl.TextValue;
+import net.minecraft.util.ChatComponentText;
+
+import java.util.Locale;
+import java.util.regex.Pattern;
+
+@ModuleInfo(name = "NickHider", description = "Hides your username", legit = true)
+public class NickHider extends Module {
+    public static NickHider INSTANCE;
+
+    public final TextValue customNick = new TextValue("Custom nick", "", this);
+
+    private String realName;
+    private Pattern realNamePattern;
+
+    @Override
+    public void onEnable() {
+        INSTANCE = this;
+        realName = mc.session.getUsername();
+        realNamePattern = Pattern.compile(Pattern.quote(realName), Pattern.CASE_INSENSITIVE);
+    }
+
+    @Override
+    public void onDisable() {
+        INSTANCE = null;
+        realName = null;
+        realNamePattern = null;
+    }
+
+    @EventTarget
+    public void onSendMessage(SendMessageEvent event) {
+        String fakeName = customNick.get();
+        if (realName == null || fakeName == null || fakeName.isEmpty()) {
+            return;
+        }
+
+        String message = event.getMessage();
+        if (message.toLowerCase(Locale.ROOT).contains(fakeName.toLowerCase(Locale.ROOT))) {
+            Pattern fakeNamePattern = Pattern.compile(Pattern.quote(fakeName), Pattern.CASE_INSENSITIVE);
+            event.setMessage(fakeNamePattern.matcher(message).replaceAll(realName));
+        }
+    }
+
+    @EventTarget
+    public void onPrintChatMessage(PrintChatMessageEvent event) {
+        String fakeName = customNick.get();
+        if (!isEnabled() || realName == null || fakeName == null || fakeName.isEmpty()) {
+            return;
+        }
+
+        String formatted = event.getChatComponent().getFormattedText();
+        if (formatted.toLowerCase(Locale.ROOT).contains(realName.toLowerCase(Locale.ROOT))) {
+            String masked = realNamePattern.matcher(formatted).replaceAll(fakeName);
+            event.setChatComponent(new ChatComponentText(masked));
+        }
+    }
+
+    public String apply(String input) {
+        String fakeName = customNick.get();
+        if (!isEnabled() || input == null || realName == null || fakeName == null || fakeName.isEmpty()) {
+            return input;
+        }
+
+        if (input.toLowerCase(Locale.ROOT).contains(realName.toLowerCase(Locale.ROOT))) {
+            return realNamePattern.matcher(input).replaceAll(fakeName);
+        }
+
+        return input;
+    }
+}

@@ -1,0 +1,98 @@
+package net.minecraft.client.gui;
+
+import gr.larryngton.demise.gui.mainmenu.GuiMainMenu;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.util.EnumChatFormatting;
+
+public class GuiGameOver extends GuiScreen implements GuiYesNoCallback {
+    private int enableButtonsTimer;
+    private final boolean field_146346_f = false;
+
+    public void initGui() {
+        this.buttonList.clear();
+
+        if (mc.theWorld.getWorldInfo().isHardcoreModeEnabled()) {
+            if (mc.isIntegratedServerRunning()) {
+                this.buttonList.add(new GuiButton(1, (float) width / 2 - 100, (float) height / 4 + 96, I18n.format("deathScreen.deleteWorld")));
+            } else {
+                this.buttonList.add(new GuiButton(1, (float) width / 2 - 100, (float) height / 4 + 96, I18n.format("deathScreen.leaveServer")));
+            }
+        } else {
+            this.buttonList.add(new GuiButton(0, (float) width / 2 - 100, (float) height / 4 + 72, I18n.format("deathScreen.respawn")));
+            this.buttonList.add(new GuiButton(1, (float) width / 2 - 100, (float) height / 4 + 96, I18n.format("deathScreen.titleScreen")));
+            this.buttonList.add(new GuiButton(2, (float) width / 2 - 100, (float) height / 4 + 120, I18n.format("Force Respawn")));
+
+            if (mc.getSession() == null) {
+                this.buttonList.get(1).enabled = false;
+            }
+        }
+
+        for (GuiButton guibutton : this.buttonList) {
+            guibutton.enabled = guibutton.id == 2;
+        }
+    }
+
+    protected void keyTyped(char typedChar, int keyCode) {
+    }
+
+    protected void actionPerformed(GuiButton button) {
+        switch (button.id) {
+            case 0, 2:
+                mc.thePlayer.respawnPlayer();
+                mc.displayGuiScreen(null);
+                break;
+            case 1:
+                if (mc.theWorld.getWorldInfo().isHardcoreModeEnabled()) {
+                    mc.displayGuiScreen(new GuiMainMenu());
+                } else {
+                    GuiYesNo guiyesno = new GuiYesNo(this, I18n.format("deathScreen.quit.confirm"), "", I18n.format("deathScreen.titleScreen"), I18n.format("deathScreen.respawn"), 0);
+                    mc.displayGuiScreen(guiyesno);
+                    guiyesno.setButtonDelay(20);
+                }
+        }
+    }
+
+    public void confirmClicked(boolean result, int id) {
+        if (result) {
+            mc.theWorld.sendQuittingDisconnectingPacket();
+            mc.loadWorld(null);
+            mc.displayGuiScreen(new GuiMainMenu());
+        } else {
+            mc.thePlayer.respawnPlayer();
+            mc.displayGuiScreen(null);
+        }
+    }
+
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        this.drawGradientRect(0, 0, width, height, 1615855616, -1602211792);
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(2.0F, 2.0F, 2.0F);
+        boolean flag = mc.theWorld.getWorldInfo().isHardcoreModeEnabled();
+        String s = flag ? I18n.format("deathScreen.title.hardcore") : I18n.format("deathScreen.title");
+        drawCenteredString(this.fontRendererObj, s, (float) width / 2 / 2, 30, 16777215);
+        GlStateManager.popMatrix();
+
+        if (flag) {
+            drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.hardcoreInfo"), (float) width / 2, 144, 16777215);
+        }
+
+        drawCenteredString(this.fontRendererObj, I18n.format("deathScreen.score") + ": " + EnumChatFormatting.YELLOW + mc.thePlayer.getScore(), (float) width / 2, 100, 16777215);
+        super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    public boolean doesGuiPauseGame() {
+        return false;
+    }
+
+    public void updateScreen() {
+        super.updateScreen();
+        ++this.enableButtonsTimer;
+
+        if (this.enableButtonsTimer == 20) {
+            for (GuiButton guibutton : this.buttonList) {
+                guibutton.enabled = true;
+            }
+        }
+    }
+}

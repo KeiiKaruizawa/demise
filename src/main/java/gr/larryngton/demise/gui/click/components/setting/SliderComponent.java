@@ -1,0 +1,101 @@
+package gr.larryngton.demise.gui.click.components.setting;
+
+import gr.larryngton.demise.features.values.impl.SliderValue;
+import gr.larryngton.demise.gui.click.Component;
+import gr.larryngton.demise.gui.font.Fonts;
+import gr.larryngton.demise.utils.math.TimerUtil;
+import gr.larryngton.demise.utils.render.MouseUtils;
+import gr.larryngton.demise.utils.render.RectUtils;
+import gr.larryngton.demise.utils.render.RenderUtils;
+import gr.larryngton.demise.utils.sound.SoundUtil;
+
+import java.awt.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+public class SliderComponent extends Component {
+    private final SliderValue setting;
+    private float anim;
+    private boolean dragging;
+    private float previousSetting;
+    private final TimerUtil soundTimer = new TimerUtil();
+
+    public SliderComponent(SliderValue setting) {
+        this.setting = setting;
+        previousSetting = setting.get();
+        setHeight(Fonts.interRegular.get(15).getHeight() * 2 + Fonts.interRegular.get(15).getHeight() + 2);
+    }
+
+    @Override
+    public void drawScreen(int mouseX, int mouseY) {
+        setDescription(setting.getDescription());
+
+        Fonts.interRegular.get(15).drawString(setting.getName(), getX() + 4, getY() + 2.5f, -1);
+
+        anim = RenderUtils.animate(anim, (getWidth() - 8) * (setting.get() - setting.getMin()) / (setting.getMax() - setting.getMin()), 15);
+        float sliderWidth = anim;
+
+        RectUtils.drawRound(getX() + 4, getY() + Fonts.interRegular.get(15).getHeight() + 2, getWidth() - 8, 2, 1, Color.white.darker().darker().darker().darker());
+        RectUtils.drawRound(getX() + 4, getY() + Fonts.interRegular.get(15).getHeight() + 2, sliderWidth, 2, 1, Color.white.darker().darker());
+        RenderUtils.drawCircle(getX() + 4 + sliderWidth, getY() + Fonts.interRegular.get(15).getHeight() + 3, 0, 360, 2, 0.1f, true, Color.white.brighter().brighter().getRGB());
+
+        Fonts.interRegular.get(15).drawString(setting.getMin() + "", getX() + 4, getY() + Fonts.interRegular.get(15).getHeight() * 2 + 1, new Color(160, 160, 160).getRGB());
+        Fonts.interRegular.get(15).drawCenteredString(setting.get() + "", getX() + getWidth() / 2, getY() + Fonts.interRegular.get(15).getHeight() * 2 + 1, -1);
+        Fonts.interRegular.get(15).drawString(setting.getMax() + "", getX() - 4 + getWidth() - Fonts.interRegular.get(15).getStringWidth(setting.getMax() + ""), getY() + Fonts.interRegular.get(15).getHeight() * 2 + 1, new Color(160, 160, 160).getRGB());
+
+        if (dragging) {
+            float clampedRatio = Math.max(0, Math.min(1, (mouseX - getX()) / getWidth()));
+            float rawValue = setting.getMin() + (setting.getMax() - setting.getMin()) * clampedRatio;
+
+            BigDecimal valueBD = BigDecimal.valueOf(rawValue);
+            BigDecimal incrementBD = BigDecimal.valueOf(setting.getIncrement());
+
+            BigDecimal snapped = valueBD.divide(incrementBD, 0, RoundingMode.HALF_UP).multiply(incrementBD);
+            BigDecimal finalValue = snapped.setScale(getDecimalPoints(String.valueOf(setting.getIncrement())), RoundingMode.HALF_UP);
+
+            setting.setValue(finalValue.floatValue());
+
+            if (previousSetting != setting.get()) {
+                if (soundTimer.hasTimeElapsed(25)) {
+                    SoundUtil.playSound("demise.tick");
+                    soundTimer.reset();
+                }
+                previousSetting = setting.get();
+            }
+        }
+    }
+
+    public static Integer getDecimalPoints(String n) {
+        if (n.contains(".")) {
+            return n.replaceAll(".*\\.(?=\\d?)", "").length();
+        }
+
+        return 0;
+    }
+
+    @Override
+    public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
+        if (mouseButton == 0 && MouseUtils.isHovered(getX() + 4, getY() + Fonts.interRegular.get(15).getHeight() + 2, getWidth() - 8, 2, mouseX, mouseY)) {
+            dragging = true;
+        }
+        super.mouseClicked(mouseX, mouseY, mouseButton);
+    }
+
+    @Override
+    public void mouseReleased(int mouseX, int mouseY, int state) {
+        if (state == 0) {
+            dragging = false;
+        }
+        super.mouseReleased(mouseX, mouseY, state);
+    }
+
+    @Override
+    public boolean isVisible() {
+        return this.setting.canDisplay();
+    }
+
+    @Override
+    public boolean isChild() {
+        return this.setting.isChild();
+    }
+}

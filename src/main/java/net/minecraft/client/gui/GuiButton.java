@@ -1,0 +1,166 @@
+package net.minecraft.client.gui;
+
+import gr.larryngton.demise.Demise;
+import gr.larryngton.demise.features.modules.impl.visual.Interface;
+import gr.larryngton.demise.gui.font.Fonts;
+import gr.larryngton.demise.utils.math.MathUtils;
+import gr.larryngton.demise.utils.render.MouseUtils;
+import gr.larryngton.demise.utils.render.RectUtils;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.audio.SoundHandler;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.ResourceLocation;
+
+import java.awt.*;
+
+public class GuiButton extends Gui {
+    protected static final ResourceLocation buttonTextures = new ResourceLocation("textures/gui/widgets.png");
+    public float width;
+    public float height;
+    public float xPosition;
+    public float yPosition;
+    public String displayString;
+    public final int id;
+    public boolean enabled;
+    public boolean visible;
+    protected boolean hovered;
+    private float interpolatedX;
+    private float interpolatedY;
+    private float interpolatedWidth;
+    private float interpolatedHeight;
+    public static boolean shader;
+    public float radius;
+
+    public GuiButton(int buttonId, float x, float y, String buttonText) {
+        this(buttonId, x, y, 200, 20, buttonText);
+    }
+
+    public GuiButton(int buttonId, float x, float y, float widthIn, float heightIn, String buttonText) {
+        this.width = 200;
+        this.height = 20;
+        this.enabled = true;
+        this.visible = true;
+        this.id = buttonId;
+        this.xPosition = x;
+        this.yPosition = y;
+        this.width = widthIn;
+        this.height = heightIn;
+        this.displayString = buttonText;
+        radius = 7;
+    }
+
+    protected int getHoverState(boolean mouseOver) {
+        int i = 1;
+
+        if (!this.enabled) {
+            i = 0;
+        } else if (mouseOver) {
+            i = 2;
+        }
+
+        return i;
+    }
+
+    public void drawButton(Minecraft mc, int mouseX, int mouseY) {
+        if (visible) {
+            switch (Demise.INSTANCE.getClientSettings().buttonStyle.get()) {
+                case "Vanilla": {
+                    FontRenderer fontrenderer = mc.fontRendererObj;
+                    mc.getTextureManager().bindTexture(buttonTextures);
+                    GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+                    this.hovered = mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+                    int i = this.getHoverState(this.hovered);
+                    GlStateManager.enableBlend();
+                    GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+                    GlStateManager.blendFunc(770, 771);
+                    drawTexturedModalRect(this.xPosition, this.yPosition, 0, 46 + i * 20, this.width / 2, this.height);
+                    drawTexturedModalRect(this.xPosition + this.width / 2, this.yPosition, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+                    this.mouseDragged(mc, mouseX, mouseY);
+                    int j = 14737632;
+
+                    if (!this.enabled) {
+                        j = 10526880;
+                    } else if (this.hovered) {
+                        j = 16777120;
+                    }
+
+                    drawCenteredString(fontrenderer, this.displayString, this.xPosition + this.width / 2, this.yPosition + (this.height - 8) / 2, j);
+                }
+                break;
+                case "Custom": {
+                    boolean hovered = MouseUtils.isHovered(interpolatedX, interpolatedY, interpolatedWidth, interpolatedHeight, mouseX, mouseY);
+
+                    if (interpolatedX == 0 || interpolatedY == 0 || interpolatedWidth == 0 || interpolatedHeight == 0) {
+                        interpolatedX = xPosition;
+                        interpolatedY = yPosition;
+                        interpolatedWidth = width;
+                        interpolatedHeight = height;
+                    }
+
+                    float interpolation = 0.25F;
+
+                    if (hovered) {
+                        float shrinkW = width * 0.0075F;
+                        float shrinkH = height * 0.075F;
+
+                        interpolatedX = MathUtils.interpolate(interpolatedX, xPosition + shrinkW, interpolation);
+                        interpolatedY = MathUtils.interpolate(interpolatedY, yPosition + shrinkH, interpolation);
+                        interpolatedWidth = MathUtils.interpolate(interpolatedWidth, width - (shrinkW * 2), interpolation);
+                        interpolatedHeight = MathUtils.interpolate(interpolatedHeight, height - (shrinkH * 2), interpolation);
+                    } else {
+                        interpolatedX = MathUtils.interpolate(interpolatedX, xPosition, interpolation);
+                        interpolatedY = MathUtils.interpolate(interpolatedY, yPosition, interpolation);
+                        interpolatedWidth = MathUtils.interpolate(interpolatedWidth, width, interpolation);
+                        interpolatedHeight = MathUtils.interpolate(interpolatedHeight, height, interpolation);
+                    }
+
+                    if (shader) {
+                        RectUtils.drawShaderRound(interpolatedX, interpolatedY, interpolatedWidth, interpolatedHeight, radius, Color.black);
+                    } else {
+                        Interface anInterface = Demise.INSTANCE.getModuleManager().getModule(Interface.class);
+                        RectUtils.drawRound(interpolatedX, interpolatedY, interpolatedWidth, interpolatedHeight, radius, new Color(anInterface.bgColor(), true));
+                        Fonts.interRegular.get(15).drawCenteredString(displayString, interpolatedX + interpolatedWidth / 2f, interpolatedY + Fonts.interRegular.get(15).getMiddleOfBox(interpolatedHeight) + 2.6, enabled ? 14737632 : 10526880);
+                    }
+
+                    // fixes some button sliders
+                    mc.getTextureManager().bindTexture(buttonTextures);
+
+                    this.mouseDragged(mc, mouseX, mouseY);
+                }
+            }
+        }
+    }
+
+    protected void mouseDragged(Minecraft mc, int mouseX, int mouseY) {
+    }
+
+    public void mouseReleased(int mouseX, int mouseY) {
+    }
+
+    public boolean mousePressed(Minecraft mc, int mouseX, int mouseY) {
+        return this.enabled && this.visible && mouseX >= this.xPosition && mouseY >= this.yPosition && mouseX < this.xPosition + this.width && mouseY < this.yPosition + this.height;
+    }
+
+    public boolean isMouseOver() {
+        return this.hovered;
+    }
+
+    public void drawButtonForegroundLayer(int mouseX, int mouseY) {
+    }
+
+    public void playPressSound(SoundHandler soundHandlerIn) {
+        switch (Demise.INSTANCE.getClientSettings().buttonStyle.get()) {
+            case "Vanilla":
+                soundHandlerIn.playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
+                break;
+            case "Custom":
+                soundHandlerIn.playSound(PositionedSoundRecord.create(new ResourceLocation("demise.tick")));
+                break;
+        }
+    }
+
+    public float getButtonWidth() {
+        return this.width;
+    }
+}
