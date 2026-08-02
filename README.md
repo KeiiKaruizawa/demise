@@ -4,7 +4,7 @@ larryngton, If you see this and want to take it down please let me know!
 
 A Minecraft client based around bypassing strict anticheats.
 A fork of the Original Demise client, Made by larryngton focusing on improvements.
-<br> <img src="https://img.shields.io/github/downloads/arvrianmaybe/demise/total?label=Github%20Downloads" alt="Downloads">
+<br> <img src="https://img.shields.io/github/downloads/KeiiKaruizawa/demise/total?label=Github%20Downloads" alt="Downloads">
 
 ### how to install?
 
