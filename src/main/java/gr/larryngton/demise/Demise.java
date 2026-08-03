@@ -61,7 +61,7 @@ public class Demise {
 //    public String version = "Gūji";
 //    public String version = "Miko";
     public String version = "omega";
-    public final String cloud = "https://larryngton2.github.io/demise-cloud/";
+    public final String cloud = "https://KeiiKaruizawa.github.io/demise-cloud/";
     private final ClientSettings clientSettings = new ClientSettings();
 
     private final File mainDir = new File(Minecraft.getMinecraft().mcDataDir, clientName);

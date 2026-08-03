@@ -18,7 +18,7 @@ A fork of the Original Demise client, Made by larryngton focusing on improvement
 
 ### the client is in early development, feel free to report any bugs in the issues or on the discord server
 
-#### get online configs from the [demise cloud](https://github.com/larryngton2/demise-cloud)
+#### get online configs from the [demise cloud](https://github.com/KeiiKaruizawa/demise-cloud)
 
 > [!NOTE]
 > If window creation fails on wayland, add __GL_THREADED_OPTIMIZATIONS=0 to your env variables. [This is a known issue](https://github.com/openrndr/openrndr-template/issues/54#issuecomment-2936569438), which still hasn't been fixed.
