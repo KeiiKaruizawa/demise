@@ -14,7 +14,7 @@ import net.minecraft.client.network.NetworkPlayerInfo;
 public class CustomSkin extends Module {
     public final BoolValue slimSkin = new BoolValue("Slim", true, this);
     public final BoolValue customUrl = new BoolValue("Custom URL", false, this);
-    public final ModeValue skinMode = new ModeValue("Skin", new String[]{"❤", "larryngton", "Michael Ernst", "izuna", "GommeHD", "Ye", "Karuizawa"}, "larryngton", this, () -> !customUrl.get());
+    public final ModeValue skinMode = new ModeValue("Skin", new String[]{"❤", "larryngton", "Michael Ernst", "izuna", "GommeHD", "Ye", "Karuizawa", "Ichinose"}, "larryngton", this, () -> !customUrl.get());
     public final TextValue customSkinUrl = new TextValue("URL", "https://s.namemc.com/i/afd98273bb9a8b69.png", this, customUrl::get);
 
     private String lastAppliedState = "";
@@ -64,6 +64,7 @@ public class CustomSkin extends Module {
                 case "GommeHD" -> "https://s.namemc.com/i/0f1ee89922626929.png";
                 case "Ye" -> "https://s.namemc.com/i/d4099d0f94e33b28.png";
                 case "Karuizawa" -> "https://s.namemc.com/i/1d71e2c3fc382eac.png";
+                case "Ichinose" -> "https://s.namemc.com/i/7bc11e3bcf4e7336.png";
                 default -> "";
             };
         } else {
