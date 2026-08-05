@@ -2100,11 +2100,56 @@
       }
     ]
   },
-  "nightcore": {
+  "skeet": {
     "category": "master",
     "sounds": [
       {
-        "name": "demise/nightcore",
+        "name": "demise/skeet",
+        "stream": true
+      }
+    ]
+  },
+  "pop": {
+    "category": "master",
+    "sounds": [
+      {
+        "name": "demise/pop",
+        "stream": true
+      }
+    ]
+  },
+  "glass": {
+    "category": "master",
+    "sounds": [
+      {
+        "name": "demise/glass",
+        "stream": true
+      }
+    ]
+  },
+  "neverlose": {
+    "category": "master",
+    "sounds": [
+      {
+        "name": "demise/neverlose",
+        "stream": true
+      }
+    ]
+  },
+  "primordial": {
+    "category": "master",
+    "sounds": [
+      {
+        "name": "demise/primordial",
+        "stream": true
+      }
+    ]
+  },
+  "fatality": {
+    "category": "master",
+    "sounds": [
+      {
+        "name": "demise/fatality",
         "stream": true
       }
     ]

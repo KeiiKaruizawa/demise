@@ -74,7 +74,7 @@ public class ModuleManager {
             AFKGui.class, JewESP.class, GlowESP.class, ItemGlow.class, ESP.class, Balance.class,
             HitIndicators.class, FreeLook.class, MentalSupport.class, Crosshair.class,
             NoInterpolation.class, SyncYaw.class, CustomCamera.class, LagDetector.class, SimsESP.class,
-            TargetIcon.class, NickHider.class
+            TargetIcon.class, NickHider.class, HitSounds.class
     );
 
     private final Map<ModuleCategory, List<Module>> modulesByCategory;
