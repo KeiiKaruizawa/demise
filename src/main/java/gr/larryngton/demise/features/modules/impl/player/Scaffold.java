@@ -117,7 +117,7 @@ public class Scaffold extends Module {
     private final SliderValue maxSneakTime = new SliderValue("Max sneak time", 500, 50, 1000, 50, this, sneak::get);
     private final BoolValue onlySneakOnGround = new BoolValue("Only sneak on ground", true, this, sneak::get);
 
-    private final ModeValue tower = new ModeValue("Tower", new String[]{"None", "Vanilla", "Pull down", "NCP", "Air jump", "Polar"}, "None", this);
+    private final ModeValue tower = new ModeValue("Tower", new String[]{"None", "Vanilla", "Pull down", "NCP", "Air jump", "Polar", "Hypixel"}, "None", this);
     private final SliderValue pullDownMotion = new SliderValue("Pull down moving motion", 0.95f, 0.5f, 1, 0.01f, this, () -> tower.is("Pull down"));
     private final SliderValue pullDownTick = new SliderValue("Pull down tick", 3, 2, 5, 1, this, () -> tower.is("Pull down"));
 
@@ -484,6 +484,8 @@ public class Scaffold extends Module {
 
     @EventTarget
     public void onMotion(MotionEvent e) {
+        double ground = mc.thePlayer.posY - MoveUtils.findGround(mc.thePlayer);
+
         if (e.isPost()) {
             return;
         }
@@ -541,11 +543,15 @@ public class Scaffold extends Module {
                     }
                     break;
                 case "Polar":
-                    double ground = mc.thePlayer.posY - MoveUtils.findGround(mc.thePlayer);
 
                     // i have no fucking idea why this works
                     if (!MoveUtils.isMovingMotion(mc.thePlayer) && mc.thePlayer.motionY < 0 && ground < 1.26) {
                         mc.thePlayer.motionY -= 0.091F;
+                    }
+                    break;
+                case "Hypixel":
+                    if (!MoveUtils.isMovingMotion(mc.thePlayer) && mc.thePlayer.motionY < 0 && ground < 1.26) {
+                        mc.thePlayer.motionY -= 0.38F;
                     }
                     break;
             }
