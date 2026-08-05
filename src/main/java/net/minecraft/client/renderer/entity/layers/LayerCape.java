@@ -67,8 +67,10 @@ public class LayerCape implements LayerRenderer<AbstractClientPlayer> {
                                     this.playerRenderer.bindTexture(new ResourceLocation("demise/texture/cape/other/loli.png"));
                             case "Grim" ->
                                     this.playerRenderer.bindTexture(new ResourceLocation("demise/texture/cape/other/Grim.png"));
-                            case "❤" ->
+                            case "Karuizawa" ->
                                     this.playerRenderer.bindTexture(new ResourceLocation("demise/texture/cape/other/karuizawa.png"));
+                            case "Ichinose" ->
+                                    this.playerRenderer.bindTexture(new ResourceLocation("demise/texture/cape/other/ichinose.png"));
                         }
                     }
                     case "Raven" -> {

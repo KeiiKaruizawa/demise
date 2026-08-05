@@ -47,7 +47,7 @@ public class Cape extends Module {
                     "Valentine",
                     "Vanilla"
             }, "Mojang", this, () -> capeMode.is("Minecraft"));
-    public final ModeValue otherMode = new ModeValue("Other mode", new String[]{"Aesthetic drive", "Polar", "Firefox", "Larp", "Novoline", "Tenacity", "BEST CLIENT", "KKE", "cp", "loli", "Grim", "❤"}, "BEST CLIENT", this, () -> capeMode.is("Other"));
+    public final ModeValue otherMode = new ModeValue("Other mode", new String[]{"Aesthetic drive", "Polar", "Firefox", "Larp", "Novoline", "Tenacity", "BEST CLIENT", "KKE", "cp", "loli", "Grim", "Karuizawa", "Ichinose"}, "BEST CLIENT", this, () -> capeMode.is("Other"));
 
     public final BoolValue modernPhysics = new BoolValue("Modern cape physics", false, this);
     public final BoolValue tint = new BoolValue("Cape tint", false, this);
