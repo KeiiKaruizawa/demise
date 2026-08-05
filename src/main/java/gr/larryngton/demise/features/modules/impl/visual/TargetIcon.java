@@ -28,7 +28,7 @@ import java.util.Random;
 @ModuleInfo(name = "TargetIcon", description = "Render a image when attacking someone")
 public class TargetIcon extends Module {
     private static final String[] ICON_NAMES = new String[]{
-            "Weary", "Angry", "Sunglasses", "Vomit", "Heart", "Tung", "Boykisser", "Eatsuki", "Cat", "Sunna", "Scuba", "Scuba Transparent"
+            "Weary", "Angry", "Sunglasses", "Vomit", "Heart", "Tung", "Boykisser", "Eatsuki", "Cat", "Sunna", "Scuba", "Scuba Transparent", "Karuizawa"
     };
 
     private final BoolValue onlyKillAura = new BoolValue("OnlyKillAura", false, this);
