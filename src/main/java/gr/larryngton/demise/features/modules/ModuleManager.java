@@ -55,7 +55,8 @@ public class ModuleManager {
             MurderMystery.class, Test.class, AntiCheat.class, Translator.class, Spammer.class, InputFix.class,
             KillInsults.class, IRC.class, MadeByTheBi11iona1re.class, Debug.class, Opsec.class,
             ViaMCPPlus.class, Annoy.class, PathFinderModule.class, MultiActions.class, BalanceFix.class,
-            AFKHandler.class, Dummy.class, Plugins.class, FastFPS.class, AutoMeow.class, RealLag.class, Radio.class, ADHD.class
+            AFKHandler.class, Dummy.class, Plugins.class, FastFPS.class, AutoMeow.class, RealLag.class,
+            Radio.class, ADHD.class, InstaGap.class
     );
 
     private static final Set<Class<? extends Module>> EXPLOIT_MODULES = Set.of(
@@ -73,7 +74,7 @@ public class ModuleManager {
             AFKGui.class, JewESP.class, GlowESP.class, ItemGlow.class, ESP.class, Balance.class,
             HitIndicators.class, FreeLook.class, MentalSupport.class, Crosshair.class,
             NoInterpolation.class, SyncYaw.class, CustomCamera.class, LagDetector.class, SimsESP.class,
-            TargetIcon.class, NickHider.class, InstaGap.class
+            TargetIcon.class, NickHider.class
     );
 
     private final Map<ModuleCategory, List<Module>> modulesByCategory;
