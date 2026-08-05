@@ -24,7 +24,7 @@ public class ClientSettings extends Module {
     public final SliderValue pingUpdateDelay = new SliderValue("Ping update delay (seconds)", 10, 1, 60, 1, this);
     private final SliderValue fadeSpeed = new SliderValue("Fade speed", 1, 1, 10, 1, this);
     private final SliderValue timePerIndex = new SliderValue("Time per index", 75L, -350L, 350L, 1L, this);
-    public final ModeValue colorMode = new ModeValue("Color mode", new String[]{"Custom", "Winter", "Blend", "Mango", "Snowy sky", "Miko", "Satin", "Gothic", "Cotton candy", "Breath", "Silver", "Tuff", "Yin & Yang", "Karuizawa"}, "Winter", this);
+    public final ModeValue colorMode = new ModeValue("Color mode", new String[]{"Custom", "Winter", "Blend", "Mango", "Snowy sky", "Miko", "Satin", "Gothic", "Cotton candy", "Breath", "Silver", "Tuff", "Yin & Yang", "Karuizawa", "Ichinose"}, "Winter", this);
     public final ColorValue mainColor = new ColorValue("Main Color", new Color(0, 170, 255), this, () -> colorMode.is("Breath") || colorMode.is("Custom"));
     public final ColorValue secondaryColor = new ColorValue("Secondary Color", new Color(0, 170, 255), this, () -> colorMode.is("Custom"));
     public final ModeValue bgStyle = new ModeValue("Background style", new String[]{"Transparent", "Opaque", "Custom"}, "Transparent", this);
@@ -131,6 +131,10 @@ public class ClientSettings extends Module {
             case "Karuizawa" -> {
                 color1 = new Color(248, 223, 183);
                 yield new Color(212, 151, 54);
+            }
+            case "Ichinose" -> {
+                color1 = new Color(223, 120, 163, 255);
+                yield new Color(246, 211, 202);
             }
             default -> {
                 color1 = Color.white;
