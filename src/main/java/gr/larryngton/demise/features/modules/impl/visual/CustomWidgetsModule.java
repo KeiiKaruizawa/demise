@@ -14,4 +14,5 @@ public class CustomWidgetsModule extends Module {
     public final BoolValue inventory = new BoolValue("Inventory", false, this);
     public final BoolValue tabOverlay = new BoolValue("Tab overlay", false, this);
     public final BoolValue worldFade = new BoolValue("World fade", false, this);
+    public final BoolValue sessionInfo = new BoolValue("Session Information", false, this);
 }

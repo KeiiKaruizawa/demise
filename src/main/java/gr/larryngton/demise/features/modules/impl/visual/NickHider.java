@@ -17,25 +17,37 @@ public class NickHider extends Module {
 
     public final TextValue customNick = new TextValue("Custom nick", "", this);
 
-    private String realName;
-    private Pattern realNamePattern;
-
     @Override
     public void onEnable() {
         INSTANCE = this;
-        realName = mc.session.getUsername();
-        realNamePattern = Pattern.compile(Pattern.quote(realName), Pattern.CASE_INSENSITIVE);
     }
 
     @Override
     public void onDisable() {
         INSTANCE = null;
-        realName = null;
-        realNamePattern = null;
+    }
+
+    private String cachedRealName;
+    private Pattern cachedRealNamePattern;
+
+    private Pattern getRealNamePattern(String realName) {
+        if (!realName.equals(cachedRealName)) {
+            cachedRealName = realName;
+            cachedRealNamePattern = Pattern.compile(Pattern.quote(realName), Pattern.CASE_INSENSITIVE);
+        }
+        return cachedRealNamePattern;
+    }
+
+    private String getRealName() {
+        if (mc.session == null) {
+            return null;
+        }
+        return mc.session.getUsername();
     }
 
     @EventTarget
     public void onSendMessage(SendMessageEvent event) {
+        String realName = getRealName();
         String fakeName = customNick.get();
         if (realName == null || fakeName == null || fakeName.isEmpty()) {
             return;
@@ -50,6 +62,7 @@ public class NickHider extends Module {
 
     @EventTarget
     public void onPrintChatMessage(PrintChatMessageEvent event) {
+        String realName = getRealName();
         String fakeName = customNick.get();
         if (!isEnabled() || realName == null || fakeName == null || fakeName.isEmpty()) {
             return;
@@ -57,19 +70,20 @@ public class NickHider extends Module {
 
         String formatted = event.getChatComponent().getFormattedText();
         if (formatted.toLowerCase(Locale.ROOT).contains(realName.toLowerCase(Locale.ROOT))) {
-            String masked = realNamePattern.matcher(formatted).replaceAll(fakeName);
+            String masked = getRealNamePattern(realName).matcher(formatted).replaceAll(fakeName);
             event.setChatComponent(new ChatComponentText(masked));
         }
     }
 
     public String apply(String input) {
+        String realName = getRealName();
         String fakeName = customNick.get();
         if (!isEnabled() || input == null || realName == null || fakeName == null || fakeName.isEmpty()) {
             return input;
         }
 
         if (input.toLowerCase(Locale.ROOT).contains(realName.toLowerCase(Locale.ROOT))) {
-            return realNamePattern.matcher(input).replaceAll(fakeName);
+            return getRealNamePattern(realName).matcher(input).replaceAll(fakeName);
         }
 
         return input;

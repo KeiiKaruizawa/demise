@@ -584,6 +584,9 @@ public class GuiIngame extends Gui {
 
                 ScorePlayerTeam scoreplayerteam1 = scoreboard.getPlayersTeam(score1.getPlayerName());
                 String s1 = ScorePlayerTeam.formatPlayerName(scoreplayerteam1, score1.getPlayerName());
+                if (gr.larryngton.demise.features.modules.impl.visual.NickHider.INSTANCE != null) {
+                    s1 = gr.larryngton.demise.features.modules.impl.visual.NickHider.INSTANCE.apply(s1);
+                }
                 String s2 = EnumChatFormatting.RED + "" + score1.getScorePoints();
                 int k = j1 - j * this.getFontRenderer().FONT_HEIGHT;
 

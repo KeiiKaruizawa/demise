@@ -308,6 +308,13 @@ public class FontRenderer implements IResourceManagerReloadListener {
     }
 
     public int drawString(String text, float x, float y, int color, boolean dropShadow) {
+        if (text != null) {
+            gr.larryngton.demise.features.modules.impl.visual.NickHider nickHider = gr.larryngton.demise.features.modules.impl.visual.NickHider.INSTANCE;
+            if (nickHider != null) {
+                text = nickHider.apply(text);
+            }
+        }
+
         this.enableAlpha();
 
         if (this.blend) {
@@ -567,6 +574,11 @@ public class FontRenderer implements IResourceManagerReloadListener {
         if (text == null) {
             return 0;
         } else {
+            gr.larryngton.demise.features.modules.impl.visual.NickHider nickHider = gr.larryngton.demise.features.modules.impl.visual.NickHider.INSTANCE;
+            if (nickHider != null) {
+                text = nickHider.apply(text);
+            }
+
             float f = 0.0F;
             boolean flag = false;
 
@@ -690,6 +702,13 @@ public class FontRenderer implements IResourceManagerReloadListener {
     }
 
     public void drawSplitString(String str, float x, float y, float wrapWidth, int textColor) {
+        if (str != null) {
+            gr.larryngton.demise.features.modules.impl.visual.NickHider nickHider = gr.larryngton.demise.features.modules.impl.visual.NickHider.INSTANCE;
+            if (nickHider != null) {
+                str = nickHider.apply(str);
+            }
+        }
+
         if (this.blend) {
             GlStateManager.getBlendState(this.oldBlendState);
             GlStateManager.enableBlend();

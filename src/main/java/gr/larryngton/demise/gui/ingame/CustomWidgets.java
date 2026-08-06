@@ -11,26 +11,20 @@ import gr.larryngton.demise.events.impl.render.Render2DEvent;
 import gr.larryngton.demise.features.modules.Module;
 import gr.larryngton.demise.features.modules.impl.visual.CustomWidgetsModule;
 import gr.larryngton.demise.features.modules.impl.visual.Interface;
-import gr.larryngton.demise.gui.font.FontRenderer;
 import gr.larryngton.demise.gui.font.Fonts;
 import gr.larryngton.demise.gui.mainmenu.GuiMainMenu;
 import gr.larryngton.demise.gui.widget.impl.ModuleListWidget;
 import gr.larryngton.demise.utils.InstanceAccess;
 import gr.larryngton.demise.utils.math.MathUtils;
 import gr.larryngton.demise.utils.math.TimerUtil;
-import gr.larryngton.demise.utils.misc.ChatUtils;
-import gr.larryngton.demise.utils.render.MouseUtils;
 import gr.larryngton.demise.utils.render.RectUtils;
 import gr.larryngton.demise.utils.render.RenderUtils;
-import gr.larryngton.demise.utils.sound.SoundUtil;
 import net.minecraft.client.gui.GuiNewChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.util.MathHelper;
-import org.lwjglx.input.Mouse;
 
 import java.awt.*;
 import java.util.Collection;
@@ -193,6 +187,9 @@ public class CustomWidgets implements InstanceAccess {
 
                 ScorePlayerTeam scoreplayerteam1 = scoreboard.getPlayersTeam(score1.getPlayerName());
                 String s1 = ScorePlayerTeam.formatPlayerName(scoreplayerteam1, score1.getPlayerName());
+                if (gr.larryngton.demise.features.modules.impl.visual.NickHider.INSTANCE != null) {
+                    s1 = gr.larryngton.demise.features.modules.impl.visual.NickHider.INSTANCE.apply(s1);
+                }
 
                 final Matcher linkMatcher = LINK_PATTERN.matcher(s1);
 
