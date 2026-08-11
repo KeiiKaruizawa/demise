@@ -121,9 +121,6 @@ public class ProxyRepositoryGUI extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         MenuBackground.draw(Demise.INSTANCE.getStartTimeLong());
 
-        String title = "Proxy Manager";
-        Fonts.interSemiBold.get(22).drawString(title, (width - Fonts.interSemiBold.get(22).getStringWidth(title)) / 2.0F, 15 + 5, -1);
-
         if (this.proxies.isEmpty()) {
             String empty = "No proxies added yet";
             var emptyFont = Fonts.interMedium.get(14);
