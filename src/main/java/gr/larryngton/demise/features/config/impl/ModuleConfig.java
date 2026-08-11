@@ -5,12 +5,14 @@ import com.google.gson.JsonObject;
 import gr.larryngton.demise.Demise;
 import gr.larryngton.demise.features.config.Config;
 import gr.larryngton.demise.features.modules.Module;
+import gr.larryngton.demise.features.modules.ModuleCategory;
 import gr.larryngton.demise.features.values.Value;
 import gr.larryngton.demise.features.values.impl.*;
 import gr.larryngton.demise.utils.render.ColorUtils;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.List;
 
 public class ModuleConfig extends Config {
     public ModuleConfig(String name) {
@@ -28,6 +30,13 @@ public class ModuleConfig extends Config {
         if (object.has("ClientSettings")) {
             loadModule(object, Demise.INSTANCE.getClientSettings());
         }
+
+        if (!object.has("HiddenDefaultsApplied")) {
+            List<Module> visual = Demise.INSTANCE.getModuleManager().getModulesByCategory().get(ModuleCategory.Visual);
+            List<Module> legit = Demise.INSTANCE.getModuleManager().getModulesByCategory().get(ModuleCategory.Legit);
+            if (visual != null) visual.forEach(module -> module.setHidden(true));
+            if (legit != null) legit.forEach(module -> module.setHidden(true));
+        }
     }
 
     @Override
@@ -38,6 +47,7 @@ public class ModuleConfig extends Config {
         }
 
         object.add("ClientSettings", saveModule(Demise.INSTANCE.getClientSettings()));
+        object.addProperty("HiddenDefaultsApplied", true);
         return object;
     }
 

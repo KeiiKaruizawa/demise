@@ -76,6 +76,25 @@ public class ModuleComponent implements IComponent {
                 settings.add(new DoubleSliderComponent(doubleSliderValue));
             }
         }
+
+        BoolValue hiddenValue = new BoolValue("Hidden", module.isHidden()) {
+            @Override
+            public boolean get() {
+                return module.isHidden();
+            }
+
+            @Override
+            public void set(boolean value) {
+                module.setHidden(value);
+            }
+
+            @Override
+            public void toggle() {
+                module.setHidden(!module.isHidden());
+            }
+        };
+        hiddenValue.child = true;
+        settings.add(new BooleanComponent(hiddenValue));
     }
 
     public void initCategory() {

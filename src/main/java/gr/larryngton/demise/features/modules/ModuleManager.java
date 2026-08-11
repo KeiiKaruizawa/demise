@@ -122,8 +122,8 @@ public class ModuleManager {
                 .forEach(module -> {
                     allAllModules.add(module);
 
-                    if (Demise.INSTANCE.isLegit() && !module.isLegit()) {
-                        return;
+                    if (category == ModuleCategory.Visual || category == ModuleCategory.Legit) {
+                        module.setHidden(true);
                     }
 
                     modulesByCategory.get(category).add(module);
