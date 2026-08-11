@@ -164,7 +164,11 @@ public class ClientSettings extends Module {
     }
 
     public String applyCasing(String name) {
-        return switch (moduleCase.get()) {
+        return applyCasing(name, moduleCase.get());
+    }
+
+    public String applyCasing(String name, String mode) {
+        return switch (mode) {
             case "camelCase()" -> toCamelCase(name);
             case "snake_case" -> toSnakeCase(name);
             case "lowercase" -> name.toLowerCase();

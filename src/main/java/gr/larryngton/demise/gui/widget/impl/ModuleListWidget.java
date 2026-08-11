@@ -2,7 +2,6 @@ package gr.larryngton.demise.gui.widget.impl;
 
 import gr.larryngton.demise.Demise;
 import gr.larryngton.demise.features.modules.Module;
-import gr.larryngton.demise.features.modules.ModuleCategory;
 import gr.larryngton.demise.gui.font.FontRenderer;
 import gr.larryngton.demise.gui.font.Fonts;
 import gr.larryngton.demise.gui.widget.Widget;
@@ -10,6 +9,7 @@ import gr.larryngton.demise.utils.animations.Animation;
 import gr.larryngton.demise.utils.animations.Direction;
 import gr.larryngton.demise.utils.render.RectUtils;
 import gr.larryngton.demise.utils.render.RenderUtils;
+import net.minecraft.client.renderer.GlStateManager;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -203,13 +203,123 @@ public class ModuleListWidget extends Widget {
                 }
             }
             break;
+            case "Custom": {
+                boolean vanilla = setting.customFont.is("Vanilla");
+                boolean showSuffix = setting.customShowSuffix.get();
+                boolean suffixVanilla = setting.customSuffixFont.is("Vanilla");
+                float size = setting.customTextSize.get();
+                FontRenderer customFont = vanilla ? null : customFontEnum(setting.customFont.get()).get(size);
+                FontRenderer suffixFont = suffixVanilla ? null : customFontEnum(setting.customSuffixFont.get()).get(size);
+                float referenceHeight = Fonts.interRegular.get(size).getHeight();
+                float vanillaScale = referenceHeight / (float) mc.fontRendererObj.FONT_HEIGHT;
+                float fontHeight = vanilla ? referenceHeight : customFont.getHeight();
+                int spacing = 2;
+                float lastEdgeX = Float.NaN;
+
+                this.height = getEnabledModules().size() * (fontHeight + spacing);
+
+                for (int i = 0; i < enabledModules.size(); i++) {
+                    Module module = enabledModules.get(i);
+                    RenderPosition pos = calculateRenderPosition(module);
+                    String casedName = Demise.INSTANCE.getClientSettings().applyCasing(module.getName());
+                    String tag = Demise.INSTANCE.getClientSettings().applyCasing(module.getTag().replace("\u00A77", ""), setting.customSuffixCasing.get());
+
+                    float nameWidth = vanilla ? mc.fontRendererObj.getStringWidth(casedName) * vanillaScale : customFont.getStringWidth(casedName);
+                    float tagWidth = !showSuffix ? 0 : (suffixVanilla ? mc.fontRendererObj.getStringWidth(tag) * vanillaScale : suffixFont.getStringWidth(tag));
+                    float fullWidth = nameWidth + tagWidth;
+                    float moduleX = (renderX > middle) ? pos.x + (this.width - fullWidth) : pos.x;
+                    float y = pos.y + offset;
+                    float boxTop = y - 1f;
+                    float boxHeight = fontHeight + 2f;
+
+                    if (setting.customBackground.get()) {
+                        RenderUtils.drawRect(moduleX - 2f, boxTop, fullWidth + 4f, boxHeight, setting.bgColor());
+                        Demise.INSTANCE.getShaderManager().addToAllQueue(() -> RenderUtils.drawRect(moduleX - 2f, boxTop, fullWidth + 4f, boxHeight, Color.black.getRGB()));
+                    }
+
+                    switch (setting.lineMode.get()) {
+                        case "Line" -> RenderUtils.drawRect(renderX > middle ? moduleX + fullWidth + 2f : moduleX - 2f, boxTop, 0.5f, boxHeight, setting.color(i, 225));
+                        case "Outline" -> {
+                            float edgeX = renderX > middle ? moduleX - 2f : moduleX + fullWidth + 1.5f;
+                            float fixedX = renderX > middle ? moduleX + fullWidth + 1.5f : moduleX - 2f;
+                            RenderUtils.drawRect(edgeX, boxTop, 0.5f, boxHeight, setting.color(i, 225));
+                            RenderUtils.drawRect(fixedX, boxTop, 0.5f, boxHeight, setting.color(i, 225));
+
+                            if (!Float.isNaN(lastEdgeX) && lastEdgeX != edgeX) {
+                                RenderUtils.drawRect(Math.min(lastEdgeX, edgeX), boxTop, Math.abs(lastEdgeX - edgeX) + 0.5f, 0.5f, setting.color(i, 225));
+                            }
+
+                            if (i == 0) {
+                                RenderUtils.drawRect(moduleX - 2f, boxTop, fullWidth + 4f, 0.5f, setting.color(i, 225));
+                            }
+
+                            if (i == enabledModules.size() - 1) {
+                                RenderUtils.drawRect(moduleX - 2f, boxTop + boxHeight - 0.5f, fullWidth + 4f, 0.5f, setting.color(i, 225));
+                            }
+
+                            lastEdgeX = edgeX;
+                        }
+                    }
+
+                    if (vanilla) {
+                        GlStateManager.pushMatrix();
+                        try {
+                            GlStateManager.translate(moduleX, y, 0);
+                            GlStateManager.scale(vanillaScale, vanillaScale, 1f);
+                            mc.fontRendererObj.drawStringWithShadow(casedName, 0, 0, setting.color(i));
+                        } finally {
+                            GlStateManager.popMatrix();
+                        }
+                    } else {
+                        customFont.drawStringWithShadow(casedName, moduleX, boxTop + customFont.getMiddleOfBox(boxHeight) + 2.6f, setting.color(i));
+                    }
+
+                    if (showSuffix && setting.customSuffixColor.get().getAlpha() > 0) {
+                        int suffixColor = setting.customSuffixColor.get().getRGB();
+                        if (suffixVanilla) {
+                            GlStateManager.pushMatrix();
+                            try {
+                                GlStateManager.translate(moduleX + nameWidth, y, 0);
+                                GlStateManager.scale(vanillaScale, vanillaScale, 1f);
+                                mc.fontRendererObj.drawStringWithShadow(tag, 0, 0, suffixColor);
+                            } finally {
+                                GlStateManager.popMatrix();
+                            }
+                        } else {
+                            suffixFont.drawStringWithShadow(tag, moduleX + nameWidth, boxTop + suffixFont.getMiddleOfBox(boxHeight) + 2.6f, suffixColor);
+                        }
+                    }
+
+                    offset += (float) ((fontHeight + spacing) * module.getAnimation().getOutput());
+                }
+                break;
+            }
         }
+    }
+
+    private static Fonts customFontEnum(String name) {
+        return switch (name) {
+            case "Inter Bold" -> Fonts.interBold;
+            case "Inter Medium" -> Fonts.interMedium;
+            case "Inter Regular" -> Fonts.interRegular;
+            case "Inter Semi Bold" -> Fonts.interSemiBold;
+            case "Inter Light" -> Fonts.interLight;
+            case "Urbanist" -> Fonts.urbanist;
+            case "Exhi" -> Fonts.exhi;
+            case "Genshin" -> Fonts.genshin;
+            case "Tahoma" -> Fonts.tahoma;
+            case "Tahoma Bold" -> Fonts.tahomaBold;
+            case "Comfortaa" -> Fonts.comfortaa;
+            case "Helvetica Neue" -> Fonts.helveticaNeue;
+            case "why the fuck would you use this" -> Fonts.esp;
+            default -> Fonts.interRegular;
+        };
     }
 
     public static List<Module> getEnabledModules() {
         List<Module> enabledModules = new ArrayList<>();
         for (Module module : INSTANCE.getModuleManager().getModules()) {
-            if (module.isHidden() || (setting.hideRender.get() && Demise.INSTANCE.getModuleManager().getModulesByCategory().get(ModuleCategory.Visual).contains(module))) {
+            if (module.isHidden()) {
                 continue;
             }
             Animation moduleAnimation = module.getAnimation();
@@ -230,6 +340,17 @@ public class ModuleListWidget extends Widget {
             case "Adjust" -> Fonts.tahoma.get(15).getStringWidth(casedName.replaceAll("([a-z])([A-Z])", "$1 $2") + Pattern.compile("(?<=\\s)[a-z]").matcher(module.getTag().replaceAll(" ([a-z])", " $1".toUpperCase())).replaceAll(r -> r.group().toUpperCase()));
             case "Rise 5" -> Fonts.comfortaa.get(18).getStringWidth(casedName) + 1 * 1.5F + 0.5F;
             case "Sigma" -> Fonts.helveticaNeue.get(24).getStringWidth(casedName) + 1 * 3F + 1F;
+            case "Custom" -> {
+                boolean vanilla = setting.customFont.is("Vanilla");
+                boolean showSuffix = setting.customShowSuffix.get();
+                boolean suffixVanilla = setting.customSuffixFont.is("Vanilla");
+                float size = setting.customTextSize.get();
+                float vanillaScale = Fonts.interRegular.get(size).getHeight() / (float) mc.fontRendererObj.FONT_HEIGHT;
+                float nameWidth = vanilla ? mc.fontRendererObj.getStringWidth(casedName) * vanillaScale : customFontEnum(setting.customFont.get()).get(size).getStringWidth(casedName);
+                String tag = Demise.INSTANCE.getClientSettings().applyCasing(module.getTag().replace("\u00A77", ""), setting.customSuffixCasing.get());
+                float tagWidth = !showSuffix ? 0 : (suffixVanilla ? mc.fontRendererObj.getStringWidth(tag) * vanillaScale : customFontEnum(setting.customSuffixFont.get()).get(size).getStringWidth(tag));
+                yield nameWidth + tagWidth + 4;
+            }
             default -> 0;
         };
     }
@@ -242,6 +363,11 @@ public class ModuleListWidget extends Widget {
             case "Adjust" -> 10;
             case "Rise 5" -> Fonts.comfortaa.get(18).getHeight() + 2 + 0.3F;
             case "Sigma" -> Fonts.helveticaNeue.get(24).getHeight() + 1 + 3F;
+            case "Custom" -> {
+                boolean vanilla = setting.customFont.is("Vanilla");
+                float size = setting.customTextSize.get();
+                yield (vanilla ? Fonts.interRegular.get(size).getHeight() : customFontEnum(setting.customFont.get()).get(size).getHeight()) + 2;
+            }
             default -> 0;
         };
     }

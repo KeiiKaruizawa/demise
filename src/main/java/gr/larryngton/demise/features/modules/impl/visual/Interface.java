@@ -50,10 +50,18 @@ public class Interface extends Module {
     ), this);
 
     public final ModeValue watermarkMode = new ModeValue("Watermark mode", new String[]{"Text", "Blue archive", "Old", "Miko", "Icarus", "Modern", "Adjust", "Rise 5", "Sigma", "Karuizawa"}, "Text", this, () -> elements.isEnabled("Watermark"));
-    public final ModeValue moduleListMode = new ModeValue("Module list mode", new String[]{"New", "Old", "Icarus", "Adjust", "Rise 5", "Sigma"}, "New", this, () -> elements.isEnabled("Module list"));
+    public final ModeValue moduleListMode = new ModeValue("Module list mode", new String[]{"New", "Old", "Icarus", "Adjust", "Rise 5", "Sigma", "Custom"}, "New", this, () -> elements.isEnabled("Module list"));
     public final BoolValue background = new BoolValue("Background", true, this, () -> moduleListMode.is("Adjust") && moduleListMode.canDisplay());
-    public final ModeValue lineMode = new ModeValue("Line mode", new String[]{"None", "Line", "Outline"}, "None", this, () -> moduleListMode.is("Adjust") && moduleListMode.canDisplay() && background.get());
-    public final BoolValue hideRender = new BoolValue("Hide render", true, this, () -> elements.isEnabled("Module list"));
+    public final BoolValue customBackground = new BoolValue("Custom background", true, this, () -> moduleListMode.is("Custom") && moduleListMode.canDisplay());
+    public final ModeValue lineMode = new ModeValue("Line mode", new String[]{"None", "Line", "Outline"}, "None", this, () -> (moduleListMode.is("Custom") || (moduleListMode.is("Adjust") && background.get())) && moduleListMode.canDisplay());
+
+    public final SliderValue customTextSize = new SliderValue("Custom text size", 15, 6, 40, 1, this, () -> moduleListMode.is("Custom") && moduleListMode.canDisplay());
+    public final ModeValue customFont = new ModeValue("Custom font", new String[]{"Vanilla", "Inter Bold", "Inter Medium", "Inter Regular", "Inter Semi Bold", "Inter Light", "Urbanist", "Exhi", "Genshin", "Tahoma", "Tahoma Bold", "Comfortaa", "Helvetica Neue", "why the fuck would you use this"}, "Inter Regular", this, () -> moduleListMode.is("Custom") && moduleListMode.canDisplay());
+    public final BoolValue customShowSuffix = new BoolValue("Custom suffix", true, this, () -> moduleListMode.is("Custom") && moduleListMode.canDisplay());
+    public final ColorValue customSuffixColor = new ColorValue("Suffix color", Color.lightGray, this, () -> moduleListMode.is("Custom") && customShowSuffix.get() && moduleListMode.canDisplay());
+    public final ModeValue customSuffixFont = new ModeValue("Suffix font", new String[]{"Vanilla", "Inter Bold", "Inter Medium", "Inter Regular", "Inter Semi Bold", "Inter Light", "Urbanist", "Exhi", "Genshin", "Tahoma", "Tahoma Bold", "Comfortaa", "Helvetica Neue", "why the fuck would you use this"}, "Inter Regular", this, () -> moduleListMode.is("Custom") && customShowSuffix.get() && moduleListMode.canDisplay());
+    public final ModeValue customSuffixCasing = new ModeValue("Suffix casing", new String[]{"Default", "UPPERCASE", "lowercase", "aLtErNaTe"}, "Default", this, () -> moduleListMode.is("Custom") && customShowSuffix.get() && moduleListMode.canDisplay());
+
     public final ModeValue potionMode = new ModeValue("Potion Mode", new String[]{"Default", "Adjust"}, "Default", this, () -> elements.isEnabled("Potion hud"));
     public final ModeValue infoMode = new ModeValue("Info Mode", new String[]{"Default", "Adjust"}, "Default", this, () -> elements.isEnabled("Info"));
 
