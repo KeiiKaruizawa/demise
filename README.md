@@ -20,6 +20,8 @@ A fork of the Original Demise client, Made by larryngton focusing on improvement
 Install the [launcher](https://github.com/KeiiKaruizawa/Demise-Launcher)
 <br> Step by step installation is there. </b>
 
+btw use manual installation for dev updates use launcher for latest updates
+
 ### the client is in early development, feel free to report any bugs in the issues or on the discord server
 
 #### get online configs from the [demise cloud](https://github.com/KeiiKaruizawa/demise-cloud)
