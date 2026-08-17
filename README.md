@@ -16,6 +16,10 @@ A fork of the Original Demise client, Made by larryngton focusing on improvement
    prism, but they are way harder to set up)
    <br> <b> make sure to use java 17 </b>
 
+### launcher
+Install the [launcher](https://github.com/KeiiKaruizawa/Demise-Launcher)
+<br> Step by step installation is there. </b>
+
 ### the client is in early development, feel free to report any bugs in the issues or on the discord server
 
 #### get online configs from the [demise cloud](https://github.com/KeiiKaruizawa/demise-cloud)
