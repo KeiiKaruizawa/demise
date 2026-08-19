@@ -22,7 +22,8 @@ public enum Fonts {
     tahomaBold("tahomaBold"),
     comfortaa("Comfortaa"),
     helveticaNeue("helveticaNeue"),
-    esp("esp"); // Got this specifically for the shit font that Augustus uses.
+    esp("esp"), // Got this specifically for the shit font that Augustus uses.
+    RubikBold("RubikBold");
 
     private final String file;
     private final Float2ObjectMap<FontRenderer> fontMap = new Float2ObjectArrayMap<>();

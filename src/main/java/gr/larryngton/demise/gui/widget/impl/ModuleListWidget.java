@@ -312,6 +312,7 @@ public class ModuleListWidget extends Widget {
             case "Comfortaa" -> Fonts.comfortaa;
             case "Helvetica Neue" -> Fonts.helveticaNeue;
             case "why the fuck would you use this" -> Fonts.esp;
+            case "Rubik Bold" -> Fonts.RubikBold;
             default -> Fonts.interRegular;
         };
     }
