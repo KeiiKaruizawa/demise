@@ -54,6 +54,7 @@ public class Interface extends Module {
     public final BoolValue background = new BoolValue("Background", true, this, () -> moduleListMode.is("Adjust") && moduleListMode.canDisplay());
     public final BoolValue customBackground = new BoolValue("Custom background", true, this, () -> moduleListMode.is("Custom") && moduleListMode.canDisplay());
     public final ModeValue lineMode = new ModeValue("Line mode", new String[]{"None", "Line", "Outline"}, "None", this, () -> (moduleListMode.is("Custom") || (moduleListMode.is("Adjust") && background.get())) && moduleListMode.canDisplay());
+    public final ColorValue backgroundColor = new ColorValue("Background Colour", new Color(21, 21, 21, 204), this, () -> moduleListMode.is("Custom") && customBackground.get() && moduleListMode.canDisplay());
 
     public final SliderValue customTextSize = new SliderValue("Custom text size", 15, 6, 40, 1, this, () -> moduleListMode.is("Custom") && moduleListMode.canDisplay());
     public final ModeValue customFont = new ModeValue("Custom font", new String[]{"Vanilla", "Inter Bold", "Inter Medium", "Inter Regular", "Inter Semi Bold", "Inter Light", "Urbanist", "Exhi", "Genshin", "Tahoma", "Tahoma Bold", "Comfortaa", "Helvetica Neue", "why the fuck would you use this", "Rubik Bold"}, "Inter Regular", this, () -> moduleListMode.is("Custom") && moduleListMode.canDisplay());

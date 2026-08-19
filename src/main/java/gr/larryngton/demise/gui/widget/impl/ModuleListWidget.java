@@ -233,7 +233,7 @@ public class ModuleListWidget extends Widget {
                     float boxHeight = fontHeight + 2f;
 
                     if (setting.customBackground.get()) {
-                        RenderUtils.drawRect(moduleX - 2f, boxTop, fullWidth + 4f, boxHeight, setting.bgColor());
+                        RenderUtils.drawRect(moduleX - 2f, boxTop, fullWidth + 4f, boxHeight, setting.backgroundColor.get().getRGB());
                         Demise.INSTANCE.getShaderManager().addToAllQueue(() -> RenderUtils.drawRect(moduleX - 2f, boxTop, fullWidth + 4f, boxHeight, Color.black.getRGB()));
                     }
 
