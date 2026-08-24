@@ -252,7 +252,7 @@ public class KillAura extends Module {
     @EventTarget
     public void onUpdate(UpdateEvent e) {
         shouldRandomize = rand.nextInt(100) <= oChance.get();
-        xzRandShrinkThing = Math.random();
+        xzRandShrinkThing = ThreadLocalRandom.current().nextDouble(0.5, 0.94);
     }
 
     @EventTarget
