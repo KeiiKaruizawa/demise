@@ -1238,6 +1238,9 @@ public class Minecraft implements IThreadListener {
 
     @SuppressWarnings("incomplete-switch")
     public void rightClickMouse() {
+        RightClickEvent rightClickEvent = new RightClickEvent();
+        Demise.INSTANCE.getEventManager().call(rightClickEvent);
+        if (rightClickEvent.isCancelled()) return;
         rightClickMouse(true);
     }
 

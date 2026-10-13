@@ -6,6 +6,7 @@ import gr.larryngton.demise.events.impl.player.UpdateEvent;
 import gr.larryngton.demise.features.modules.Module;
 import gr.larryngton.demise.features.modules.ModuleInfo;
 import gr.larryngton.demise.features.values.impl.BoolValue;
+import gr.larryngton.demise.features.values.impl.ModeValue;
 import gr.larryngton.demise.utils.player.PlayerUtils;
 import gr.larryngton.demise.utils.player.handlers.rotation.RotationManager;
 import gr.larryngton.demise.utils.player.handlers.rotation.RotationUtils;
@@ -26,6 +27,7 @@ import java.util.List;
 @ModuleInfo(name = "BedBreaker", description = "Automatically breaks beds around you.")
 public class BedBreaker extends Module {
     private final BoolValue breakSurrounding = new BoolValue("Break surrounding", false, this);
+    private final ModeValue breakType = new ModeValue("Break type", new String[]{"Normal", "Hypixel"}, "Normal", this);
     private final BoolValue instant = new BoolValue("Instant break", false, this);
     private final RotationManager rotationManager = new RotationManager(this);
 
@@ -50,6 +52,17 @@ public class BedBreaker extends Module {
                 weakestSurrounding = getWeakestBlockNearBed();
             } else {
                 weakestSurrounding = null;
+            }
+        }
+
+        if (bedPos != null && breakType.is("Hypixel")) {
+            if (isBedOpen(bedPos)) {
+                weakestSurrounding = null;
+            } else if (weakestSurrounding == null) {
+                weakestSurrounding = getNearestBlock(bedPos);
+            } else if (!(mc.theWorld.getBlockState(weakestSurrounding).getBlock() instanceof BlockAir)
+                    && !mc.theWorld.getBlockState(weakestSurrounding).getBlock().isFullBlock()) {
+                weakestSurrounding = getNearestBlock(bedPos);
             }
         }
 
@@ -120,6 +133,41 @@ public class BedBreaker extends Module {
         }
 
         return bedPos;
+    }
+
+    private boolean isBedOpen(BlockPos pos) {
+        BlockPos bedPos2 = null;
+        for (BlockPos adjacentPos : new BlockPos[]{pos.north(), pos.south(), pos.east(), pos.west()}) {
+            if (mc.theWorld.getBlockState(adjacentPos).getBlock() instanceof BlockBed) {
+                bedPos2 = adjacentPos;
+                break;
+            }
+        }
+        if (bedPos2 == null) return false;
+        return isNearbyAir(pos) || isNearbyAir(bedPos2);
+    }
+
+    private boolean isNearbyAir(BlockPos pos) {
+        for (BlockPos adjacentPos : new BlockPos[]{pos.up(), pos.south(), pos.east(), pos.west(), pos.north()}) {
+            if (mc.theWorld.getBlockState(adjacentPos).getBlock() instanceof BlockAir) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private BlockPos getNearestBlock(BlockPos pos) {
+        double distance = 69;
+        BlockPos nearest = null;
+
+        for (BlockPos p : new BlockPos[]{pos.up(), pos.west(), pos.south(), pos.east(), pos.north()}) {
+            if (!(mc.theWorld.getBlockState(p).getBlock() instanceof BlockBed)
+                    && mc.thePlayer.getDistance(p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5) < distance) {
+                nearest = p;
+                distance = mc.thePlayer.getDistance(p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5);
+            }
+        }
+        return nearest;
     }
 
     private BlockPos getWeakestBlockNearBed() {

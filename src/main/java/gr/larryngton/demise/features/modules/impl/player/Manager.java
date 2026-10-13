@@ -132,6 +132,10 @@ public class Manager extends Module {
         }
     }
 
+    public boolean isInventoryOpen() {
+        return inventoryOpen;
+    }
+
     private void openInventory() {
         if (!inventoryOpen && (reopenTimer.hasTimeElapsed(reopenDelay.getInt() * 50L) || !spam.get())) {
             inventoryOpen = true;

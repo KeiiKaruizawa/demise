@@ -22,6 +22,7 @@ import gr.larryngton.demise.gui.widget.WidgetManager;
 import gr.larryngton.demise.utils.math.MathUtils;
 import gr.larryngton.demise.utils.misc.DiscordInfo;
 import gr.larryngton.demise.utils.misc.SpoofSlotUtils;
+import gr.larryngton.demise.utils.packet.BadPacketsComponent;
 import gr.larryngton.demise.utils.packet.BlinkComponent;
 import gr.larryngton.demise.utils.packet.LagUtils;
 import gr.larryngton.demise.utils.player.trackers.CPSTracker;
@@ -195,6 +196,7 @@ public class Demise {
 
     private void registerEventHandlers() {
         eventManager.register(new LagUtils());
+        eventManager.register(new BadPacketsComponent());
         eventManager.register(new BlinkComponent());
         eventManager.register(new SpoofSlotUtils());
         eventManager.register(new ChatTabsHandler());

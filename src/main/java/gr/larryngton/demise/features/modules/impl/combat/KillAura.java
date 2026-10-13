@@ -10,10 +10,12 @@ import gr.larryngton.demise.events.impl.render.Render3DEvent;
 import gr.larryngton.demise.features.modules.Module;
 import gr.larryngton.demise.features.modules.ModuleInfo;
 import gr.larryngton.demise.features.modules.impl.legit.AutoRod;
+import gr.larryngton.demise.features.modules.impl.player.Scaffold;
 import gr.larryngton.demise.features.values.impl.*;
 import gr.larryngton.demise.utils.math.MathUtils;
 import gr.larryngton.demise.utils.math.TimerUtil;
 import gr.larryngton.demise.utils.packet.BlinkComponent;
+import gr.larryngton.demise.utils.packet.BadPacketsComponent;
 import gr.larryngton.demise.utils.player.MoveUtils;
 import gr.larryngton.demise.utils.player.PlayerUtils;
 import gr.larryngton.demise.utils.player.handlers.clicking.ClickManager;
@@ -26,6 +28,7 @@ import gr.larryngton.demise.utils.player.handlers.rotation.predictions.Predictio
 import gr.larryngton.demise.utils.render.RenderUtils;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.client.C09PacketHeldItemChange;
@@ -43,10 +46,13 @@ public class KillAura extends Module {
 
     public final BoolValue autoBlock = new BoolValue("AutoBlock", true, this);
     public final SliderValue autoBlockRange = new SliderValue("AutoBlock range", 3.5f, 1, 8, 0.1f, this, autoBlock::get);
-    public final ModeValue autoBlockMode = new ModeValue("AutoBlock mode", new String[]{"Fake", "Vanilla", "Release", "Force", "NCP", "Slot", "Full release", "Blink"}, "Vanilla", this, autoBlock::get);
+    public final ModeValue autoBlockMode = new ModeValue("AutoBlock mode", new String[]{"Fake", "Vanilla", "Release", "Force", "NCP", "Slot", "Full release", "Blink", "Hypixel"}, "Vanilla", this, autoBlock::get);
     private final SliderValue reblockTicks = new SliderValue("Reblock ticks", 0, 0, 5, 1, this, autoBlock::get);
     private final BoolValue interact = new BoolValue("Interact", false, this, () -> autoBlock.get() && autoBlockMode.is("Release") || autoBlockMode.is("Force") || autoBlockMode.is("Slot"));
     private final BoolValue alwaysRenderBlocking = new BoolValue("Always render blocking", false, this, autoBlock::get);
+    private final BoolValue onlyBlockIfHurt = new BoolValue("Only block if hurt", false, this, () -> autoBlock.get() && autoBlockMode.is("Hypixel"));
+    private final SliderValue blockOnHurtTicks = new SliderValue("Block on hurt ticks", 4, 0, 10, 1, this, () -> autoBlock.get() && autoBlockMode.is("Hypixel") && onlyBlockIfHurt.get());
+    private final SliderValue blockCps = new SliderValue("Auto Block CPS", 8, 1, 10, 0.1f, this, () -> autoBlock.get() && autoBlockMode.is("Hypixel"));
 
     private final RotationManager rotationManager = new RotationManager(this);
 
@@ -123,6 +129,10 @@ public class KillAura extends Module {
     private double xzRandShrinkThing;
     private int ticks;
     public static boolean isRealBlocking;
+    private boolean hypixelBlocking = false;
+    private int hypixelTick = 0;
+    private boolean hypixelCanAttack = true;
+    private long hypixelLastAttack = 0L;
 
     @Override
     public void onEnable() {
@@ -130,6 +140,10 @@ public class KillAura extends Module {
         currentVec = Vec3.ZERO;
         offsetVec = Vec3.ZERO;
         ticks = 0;
+        hypixelBlocking = false;
+        hypixelTick = 0;
+        hypixelCanAttack = true;
+        hypixelLastAttack = 0L;
     }
 
     @Override
@@ -137,6 +151,8 @@ public class KillAura extends Module {
         if (isRealBlocking) {
             setBlocking(false, true);
         }
+
+        hypixelUnblock();
 
         isRealBlocking = false;
         isBlocking = false;
@@ -214,6 +230,8 @@ public class KillAura extends Module {
                 break;
         }
 
+        hypixelAutoBlockTick();
+
         if (target != null) {
             if (isTargetValid()) {
                 clickManager.click(attackRange.get(), target);
@@ -276,6 +294,16 @@ public class KillAura extends Module {
     }
 
     public boolean alwaysPreAttack(boolean willAttack) {
+        if (autoBlock.get() && autoBlockMode.is("Hypixel")) {
+            if (!hypixelCanAttack) {
+                return false;
+            }
+
+            if (System.currentTimeMillis() - hypixelLastAttack < (long) (1000.0 / blockCps.get())) {
+                willAttack = false;
+            }
+        }
+
         if (canAutoBlock()) {
             if (autoBlockMode.is("Blink")) {
                 if (ticks == 0) {
@@ -295,6 +323,8 @@ public class KillAura extends Module {
     }
 
     public void preAttack() {
+        hypixelLastAttack = System.currentTimeMillis();
+
         if (canAutoBlock()) {
             switch (autoBlockMode.get()) {
                 case "None", "Release", "Vanilla", "Full release", "Slot":
@@ -417,6 +447,13 @@ public class KillAura extends Module {
 
     @EventTarget
     public void onMotion(MotionEvent e) {
+        if (e.isPost() && autoBlock.get() && autoBlockMode.is("Hypixel") && hypixelBlocking && mc.thePlayer != null && !mc.thePlayer.isUsingItem()) {
+            ItemStack held = mc.thePlayer.getHeldItem();
+            if (held != null) {
+                mc.thePlayer.setItemInUse(held, held.getMaxItemUseDuration());
+            }
+        }
+
         if (autoBlockMode.is("NCP") && canAutoBlock()) {
             if (e.isPre()) {
                 sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
@@ -430,6 +467,72 @@ public class KillAura extends Module {
 
     private boolean canAutoBlock() {
         return PlayerUtils.isHoldingSword() && autoBlock.get() && target != null && PlayerUtils.getDistanceToEntityBox(target) <= autoBlockRange.get();
+    }
+
+    private void hypixelAutoBlockTick() {
+        if (autoBlock.get() && autoBlockMode.is("Hypixel")) {
+            if (target != null && isTargetValid() && canAutoBlock() && !getModule(Scaffold.class).isEnabled()) {
+                hypixelBlockTick();
+            } else {
+                hypixelUnblock();
+            }
+        } else {
+            hypixelUnblock();
+        }
+    }
+
+    private void hypixelBlockTick() {
+        if (mc.thePlayer == null || mc.playerController == null) return;
+
+        if (onlyBlockIfHurt.get() && mc.thePlayer.hurtTime < blockOnHurtTicks.get()) {
+            if (hypixelBlocking) hypixelReleaseBlock();
+            return;
+        }
+
+        hypixelCanAttack = !BadPacketsComponent.bad(false, false, false, true, false);
+
+        if (hypixelBlocking) {
+            hypixelReleaseBlock();
+        }
+
+        long delay = (long) (1000.0 / blockCps.get());
+        long remaining = delay - (System.currentTimeMillis() - hypixelLastAttack);
+
+        if (remaining <= 50L) {
+            hypixelTick = 1;
+        } else if (hypixelTick == 1) {
+            hypixelSendBlock();
+            hypixelTick = 0;
+        }
+    }
+
+    private void hypixelSendBlock() {
+        if (mc.thePlayer == null) return;
+
+        ItemStack held = mc.thePlayer.getHeldItem();
+        if (held == null) return;
+
+        sendPacket(new C08PacketPlayerBlockPlacement(held));
+        mc.thePlayer.setItemInUse(held, held.getMaxItemUseDuration());
+        hypixelBlocking = true;
+    }
+
+    private void hypixelReleaseBlock() {
+        hypixelBlocking = false;
+
+        if (mc.thePlayer == null) return;
+
+        sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+        mc.thePlayer.stopUsingItem();
+    }
+
+    private void hypixelUnblock() {
+        if (hypixelBlocking) {
+            hypixelReleaseBlock();
+        }
+
+        hypixelTick = 0;
+        hypixelCanAttack = true;
     }
 
     private float[] getRotations() {
