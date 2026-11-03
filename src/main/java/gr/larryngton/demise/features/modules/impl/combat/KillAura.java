@@ -262,7 +262,7 @@ public class KillAura extends Module {
             }
 
             if (PlayerUtils.getDistanceToEntityBox(target) <= searchRange.get()) {
-                rotationManager.setRotation(getRotations());
+                rotationManager.setRotation(Displace.displaceAuraRotation(getRotations()));
             }
         }
     }
@@ -317,6 +317,10 @@ public class KillAura extends Module {
         } else {
             setBlocking(false, true);
             release();
+        }
+
+        if (willAttack && Displace.isAuraIntegrationActive()) {
+            willAttack = !Displace.auraAttackGate();
         }
 
         return willAttack;

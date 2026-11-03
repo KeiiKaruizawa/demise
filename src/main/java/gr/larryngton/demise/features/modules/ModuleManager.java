@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ModuleManager {
     private static final Set<Class<? extends Module>> COMBAT_MODULES = Set.of(
             AntiBot.class, Criticals.class, FakeLag.class, KeepSprint.class, KillAura.class, TickBase.class,
-            TimerRange.class, Velocity.class, BowAimbot.class, KnockbackDisplacement.class
+            TimerRange.class, Velocity.class, BowAimbot.class, Displace.class
     );
 
     private static final Set<Class<? extends Module>> LEGIT_MODULES = Set.of(
